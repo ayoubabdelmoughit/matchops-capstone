@@ -1,0 +1,152 @@
+:root {
+  --bg: #0F1B2E;
+  --surface: #16233A;
+  --surface-raised: #1D2D4A;
+  --line: #2A3A57;
+  --ink: #FBFBF8;
+  --muted: #8690A6;
+  --accent: #F2A93B;
+  --accent-dim: #C98A1F;
+  --safe: #5FD3A0;
+  --danger: #F0797E;
+}
+:root[data-theme="light"] {
+  --bg: #FBFBF8;
+  --surface: #FFFFFF;
+  --surface-raised: #F2EFE7;
+  --line: #E3E0D6;
+  --ink: #152238;
+  --muted: #5B6172;
+  --accent: #C98A1F;
+  --accent-dim: #A8761A;
+  --safe: #1E8A5F;
+  --danger: #C23B3B;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif;
+  transition: background .2s ease, color .2s ease;
+}
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+
+/* ---- Header ---- */
+header { border-bottom: 1px solid var(--line); background: var(--surface); }
+.hd-row { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.brand-name { font-family: 'Rubik', sans-serif; font-weight: 700; font-size: 19px; }
+nav { display: flex; align-items: center; gap: 22px; }
+nav a { color: var(--muted); text-decoration: none; font-size: 14.5px; }
+nav a:hover { color: var(--ink); }
+.status-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--safe); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+.icon-btn { background: none; border: 1px solid var(--line); border-radius: 8px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; }
+.icon-btn:hover { color: var(--ink); border-color: var(--accent-dim); }
+
+/* ---- Hero ---- */
+.hero { padding: 88px 0 64px; }
+.hero-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 56px; align-items: center; }
+.eyebrow-line { display: flex; align-items: center; gap: 12px; color: var(--accent); font-size: 17px; font-weight: 600; margin-bottom: 20px; }
+.eyebrow-line .rule { width: 28px; height: 1px; background: var(--accent-dim); }
+h1 { font-family: 'Rubik', sans-serif; font-size: 44px; font-weight: 700; line-height: 1.12; margin: 0 0 20px; }
+h1 .accent { color: var(--accent); }
+.lede { color: var(--muted); font-size: 16.5px; line-height: 1.65; max-width: 480px; margin: 0 0 32px; }
+.hero-cta { display: flex; gap: 14px; }
+.mark-stage { position: relative; display: flex; align-items: center; justify-content: center; height: 260px; }
+.mark-ring { position: absolute; width: 220px; height: 220px; border: 1px solid var(--line); border-radius: 50%; }
+
+/* ---- Apercu produit (hero) ---- */
+.apercu-carte {
+  width: 300px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px 24px;
+  transform: rotate(-2.5deg);
+  box-shadow: 0 24px 50px rgba(0,0,0,.35);
+}
+.apercu-ligne { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.apercu-score { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500; color: var(--accent); }
+.apercu-nom { font-weight: 600; font-size: 15px; }
+.apercu-barre { width: 100%; height: 5px; border-radius: 3px; background: var(--line); margin-bottom: 16px; position: relative; overflow: hidden; }
+.apercu-barre span { position: absolute; left:0; top:0; height:100%; background: linear-gradient(90deg, var(--danger), var(--accent), var(--safe)); }
+.apercu-tags { display: flex; gap: 6px; margin-bottom: 18px; }
+.apercu-tags span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 3px 9px; border-radius: 5px; background: var(--surface-raised); color: var(--muted); }
+.apercu-actions { display: flex; gap: 8px; }
+.apercu-btn-ok, .apercu-btn-no { font-size: 12.5px; font-weight: 500; padding: 7px 14px; border-radius: 6px; }
+.apercu-btn-ok { background: var(--safe); color: #0B2A1E; }
+.apercu-btn-no { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+
+/* ---- Buttons / fields ---- */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 9px; font-size: 14.5px; font-weight: 500; text-decoration: none; cursor: pointer; border: none; }
+.btn-primary { background: var(--accent); color: #152238; }
+.btn-primary:hover { background: var(--accent-dim); }
+.btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn-ghost:hover { border-color: var(--accent-dim); }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.field input, .field textarea { width: 100%; background: var(--surface-raised); border: 1px solid var(--line); border-radius: 8px; padding: 11px 13px; color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; font-size: 14.5px; }
+.field textarea { min-height: 90px; resize: vertical; }
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--accent-dim); }
+.hint { color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+
+/* ---- Sections / panels ---- */
+section { padding: 64px 0; }
+.sec-head { margin-bottom: 36px; }
+.sec-head h2 { font-family: 'Rubik', sans-serif; font-size: 26px; font-weight: 700; margin: 0 0 8px; }
+.sec-head p { color: var(--muted); font-size: 15px; margin: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 28px; }
+.panel h3 { font-family: 'Rubik', sans-serif; font-size: 17px; font-weight: 600; margin: 0 0 6px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+/* ---- Flow steps (comment ca marche) ---- */
+.flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+.flow-step { border-top: 2px solid var(--accent-dim); padding-top: 16px; }
+.flow-num { font-family: 'IBM Plex Mono', monospace; color: var(--accent); font-size: 13px; margin-bottom: 10px; }
+.flow-step h3 { font-family: 'Rubik', sans-serif; font-size: 15.5px; font-weight: 600; margin: 0 0 8px; }
+.flow-step p { color: var(--muted); font-size: 13.5px; line-height: 1.55; margin: 0; }
+
+/* ---- Login / gate ---- */
+.login-shell { min-height: calc(100vh - 72px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+.login-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 32px; }
+.login-card h3 { font-family: 'Rubik', sans-serif; font-size: 19px; margin: 0 0 6px; }
+
+/* ---- Dropzone ---- */
+.dropzone { border: 1px dashed var(--line); border-radius: 10px; padding: 26px; text-align: center; color: var(--muted); font-size: 14px; cursor: pointer; }
+.dropzone.is-dragover { border-color: var(--accent); color: var(--ink); }
+.dropzone strong { color: var(--ink); }
+
+/* ---- Status / severity badges ---- */
+.sev { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; }
+.sev-dot { width: 8px; height: 8px; border-radius: 50%; }
+.sev-critical .sev-dot, .sev-critical { color: var(--danger); } .sev-critical .sev-dot { background: var(--danger); }
+.sev-moderate .sev-dot, .sev-moderate { color: var(--accent); } .sev-moderate .sev-dot { background: var(--accent); }
+.sev-low .sev-dot, .sev-low { color: var(--safe); } .sev-low .sev-dot { background: var(--safe); }
+
+/* ---- KPI ---- */
+.kpi-row { display: grid; gap: 16px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; }
+.kpi-label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+.kpi-val { font-family: 'Rubik', sans-serif; font-size: 30px; font-weight: 700; }
+
+/* ---- Agent trace ---- */
+.agent-trace { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.agent-trace li { display: flex; gap: 12px; }
+.at-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--safe); margin-top: 6px; flex-shrink: 0; }
+.at-name { font-weight: 600; font-size: 14.5px; }
+.at-note { color: var(--muted); font-size: 13.5px; }
+
+/* ---- Footer ---- */
+footer { border-top: 1px solid var(--line); margin-top: 40px; }
+.ft-row { display: flex; justify-content: space-between; padding: 24px 0; color: var(--muted); font-size: 13px; }
+
+@media (max-width: 860px) {
+  .hero-grid, .two-col { grid-template-columns: 1fr; }
+  .flow { grid-template-columns: repeat(2, 1fr); }
+  h1 { font-size: 32px; }
+}

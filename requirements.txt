@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+langgraph
+pymongo
+requests
+python-dotenv
+pytest
+pdfplumber

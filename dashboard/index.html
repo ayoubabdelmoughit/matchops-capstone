@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MatchOps — recrutement assisté par agents IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap hd-row">
+    <a class="brand" href="index.html">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <defs><linearGradient id="gradMatch" x1="0" y1="0" x2="30" y2="30"><stop offset="0" stop-color="#F2A93B"/><stop offset="1" stop-color="#5FD3A0"/></linearGradient></defs>
+        <rect x="1" y="1" width="28" height="28" rx="8" fill="url(#gradMatch)"/>
+        <path d="M9 15.5L13 19.5L21 10.5" stroke="#0F1B2E" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="brand-name">MatchOps</span>
+    </a>
+    <nav>
+      <a href="#how" class="nav-public-link">Comment ça marche</a>
+      <span class="status-pill"><span class="status-dot"></span>Pipeline actif</span>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Changer de theme" title="Mode clair / sombre">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none"><path d="M10 2.3v2M10 15.7v2M2.3 10h2M15.7 10h2M4.6 4.6l1.4 1.4M14 14l1.4 1.4M4.6 15.4l1.4-1.4M14 6l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="10" r="3.6" stroke="currentColor" stroke-width="1.4"/></svg>
+      </button>
+      <div style="position:relative;">
+        <button class="icon-btn" id="profileBtn" type="button" aria-label="Compte" title="Compte" style="position:relative;">
+          <svg viewBox="0 0 20 20" width="17" height="17" fill="none"><circle cx="10" cy="7" r="3.1" stroke="currentColor" stroke-width="1.4"/><path d="M4 17c1-3.3 3.8-5 6-5s5 1.7 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span id="profileDot" style="display:none; position:absolute; top:4px; right:4px; width:7px; height:7px; border-radius:50%; background:var(--safe); box-shadow:0 0 5px var(--safe);"></span>
+        </button>
+        <div id="profileDropdown" style="display:none; position:absolute; right:0; top:46px; min-width:220px; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:14px; z-index:50; box-shadow:0 10px 30px rgba(0,0,0,.35);">
+          <div class="hint" style="margin-bottom:10px; word-break:break-all;">Connecté en tant que<br><strong id="recEmailLabel" style="color:var(--ink);"></strong></div>
+          <a href="#" id="recLogout" class="hint" style="color:var(--accent); text-decoration:none; display:block;">Se déconnecter</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div id="landingShell">
+  <section class="hero" style="border-top:none;">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow-line"><span class="rule"></span>Recrutement assisté par agents IA</div>
+        <h1>Chaque candidature lue, notée, et confiée au bon humain.</h1>
+        <p class="lede">
+          MatchOps lit chaque CV, le compare à l'offre, calcule un score de compatibilité — et ne sollicite
+          votre recruteur que pour les dossiers qui méritent vraiment son arbitrage.
+        </p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" type="button" id="goCandidatSpace">Espace Candidat</button>
+          <button class="btn btn-ghost" type="button" id="goRecruteurSpace">Espace Recruteur</button>
+        </div>
+      </div>
+      <div class="mark-stage" style="flex-direction:column;">
+        <div class="apercu-label">Exemple de fiche dans l'espace recruteur</div>
+        <div class="apercu-carte">
+          <div class="apercu-ligne"><span class="apercu-score">76</span><span class="apercu-nom">Candidat #104</span></div>
+          <div class="apercu-barre"><span style="width:76%"></span></div>
+          <div class="apercu-tags"><span>Python</span><span>SQL</span><span>React</span></div>
+          <div class="apercu-actions"><span class="apercu-btn-ok">Approuver</span><span class="apercu-btn-no">Rejeter</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Du CV à la décision</h2>
+        <p>Cinq agents dédiés, chacun sur une tâche précise.</p>
+      </div>
+      <div class="flow">
+        <div class="flow-step"><div class="flow-num">01</div><h3>Extraction CV</h3><p>Lecture du PDF, et bascule vers la lecture d'image si le CV est un scan.</p></div>
+        <div class="flow-step"><div class="flow-num">02</div><h3>Analyse de l'offre</h3><p>Les compétences et le niveau requis sont extraits du texte de l'offre.</p></div>
+        <div class="flow-step"><div class="flow-num">03</div><h3>Calcul du score</h3><p>Comparaison candidat ↔ offre, score de 0 à 100 avec justification.</p></div>
+        <div class="flow-step"><div class="flow-num">04</div><h3>Décision</h3><p>Score haut : approuvé. Score bas : rejeté. Entre les deux : revue humaine.</p></div>
+        <div class="flow-step"><div class="flow-num">05</div><h3>Message</h3><p>Une réponse rédigée pour le candidat, adaptée à la décision prise.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-bottom:90px;">
+    <div class="wrap" style="text-align:center;">
+      <div class="panel" style="max-width:560px; margin:0 auto;">
+        <h3>Prêt à postuler ?</h3>
+        <p class="hint">Créez votre espace candidat pour déposer votre CV et suivre toutes vos candidatures au même endroit.</p>
+        <button class="btn btn-primary" type="button" id="goCandidatSpace2" style="width:100%; justify-content:center; margin-top:14px;">Accéder à mon espace candidat</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="login-shell" id="gateShell" style="display:none;">
+  <div class="login-card">
+    <button type="button" id="backToLanding" class="icon-btn" style="margin-bottom:18px;" aria-label="Retour" title="Retour">
+      <svg viewBox="0 0 20 20" width="16" height="16" fill="none"><path d="M12.5 4.5L6 10l6.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div id="loginBox">
+      <h3>Connexion</h3>
+      <p class="hint">Connectez-vous à l'espace recruteur pour voir la file d'attente et arbitrer les décisions.</p>
+      <form id="loginForm">
+        <div class="field"><label>Email</label><input type="email" id="loginEmail" required></div>
+        <div class="field"><label>Mot de passe</label><input type="password" id="loginPassword" required></div>
+        <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Se connecter</button>
+        <p id="loginFeedback" class="hint" style="margin-top:10px;"></p>
+      </form>
+      <p class="hint" style="margin-top:14px;">Pas encore de compte ? <a href="#" id="showSignup" style="color:var(--accent);">Créer un compte</a></p>
+    </div>
+    <div id="signupBox" style="display:none;">
+      <h3>Créer un compte recruteur</h3>
+      <form id="signupForm">
+        <div class="field"><label>Email</label><input type="email" id="signupEmail" required></div>
+        <div class="field"><label>Mot de passe (8 caractères min.)</label><input type="password" id="signupPassword" required minlength="8"></div>
+        <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Créer mon compte</button>
+        <p id="signupFeedback" class="hint" style="margin-top:10px;"></p>
+      </form>
+      <p class="hint" style="margin-top:14px;">Déjà un compte ? <a href="#" id="showLogin" style="color:var(--accent);">Se connecter</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="login-shell" id="candidatGateShell" style="display:none;">
+  <div class="login-card">
+    <button type="button" id="backToLandingCandidat" class="icon-btn" style="margin-bottom:18px;" aria-label="Retour" title="Retour">
+      <svg viewBox="0 0 20 20" width="16" height="16" fill="none"><path d="M12.5 4.5L6 10l6.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div id="candidatLoginBox">
+      <h3>Connexion candidat</h3>
+      <p class="hint">Connectez-vous pour suivre toutes vos candidatures automatiquement.</p>
+      <form id="candidatLoginForm">
+        <div class="field"><label>Email</label><input type="email" id="candidatLoginEmail" required></div>
+        <div class="field"><label>Mot de passe</label><input type="password" id="candidatLoginPassword" required></div>
+        <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Se connecter</button>
+        <p id="candidatLoginFeedback" class="hint" style="margin-top:10px;"></p>
+      </form>
+      <p class="hint" style="margin-top:14px;">Pas encore de compte ? <a href="#" id="showCandidatSignup" style="color:var(--accent);">Créer un compte</a></p>
+    </div>
+    <div id="candidatSignupBox" style="display:none;">
+      <h3>Créer un compte candidat</h3>
+      <form id="candidatSignupForm">
+        <div class="field"><label>Email</label><input type="email" id="candidatSignupEmail" required></div>
+        <div class="field"><label>Mot de passe (8 caractères min.)</label><input type="password" id="candidatSignupPassword" required minlength="8"></div>
+        <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Créer mon compte</button>
+        <p id="candidatSignupFeedback" class="hint" style="margin-top:10px;"></p>
+      </form>
+      <p class="hint" style="margin-top:14px;">Déjà un compte ? <a href="#" id="showCandidatLogin" style="color:var(--accent);">Se connecter</a></p>
+    </div>
+  </div>
+</div>
+
+<main id="appMain" style="display:none;">
+  <div class="wrap" style="padding-top:36px;">
+
+    <div style="display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:32px;">
+      <button class="onglet-app actif" data-vue="matching" style="background:none;border:none;color:var(--ink);font-size:14.5px;font-weight:500;padding:12px 16px;cursor:pointer;border-bottom:2px solid var(--accent);">Matching</button>
+      <button class="onglet-app" data-vue="cicd" style="background:none;border:none;color:var(--muted);font-size:14.5px;font-weight:500;padding:12px 16px;cursor:pointer;border-bottom:2px solid transparent;">Pipeline CI/CD</button>
+      <button class="onglet-app" data-vue="gouvernance" style="background:none;border:none;color:var(--muted);font-size:14.5px;font-weight:500;padding:12px 16px;cursor:pointer;border-bottom:2px solid transparent;">Gouvernance</button>
+      <button class="onglet-app" data-vue="superviseur" style="background:none;border:none;color:var(--muted);font-size:14.5px;font-weight:500;padding:12px 16px;cursor:pointer;border-bottom:2px solid transparent;">Superviseur</button>
+      <button class="onglet-app" data-vue="offres" style="background:none;border:none;color:var(--muted);font-size:14.5px;font-weight:500;padding:12px 16px;cursor:pointer;border-bottom:2px solid transparent;">Offres</button>
+    </div>
+
+    <div class="vue-app actif" id="vue-matching">
+      <div class="kpi-row" style="grid-template-columns:1.4fr 1fr 1fr; margin-bottom:40px;" id="kpi"></div>
+      <div class="sec-head"><h2 style="font-size:20px;">File d'attente — revue requise</h2></div>
+      <div id="fileAttente" style="display:flex; flex-direction:column; gap:14px; margin-bottom:44px;"></div>
+      <div class="sec-head"><h2 style="font-size:20px;">Historique</h2></div>
+      <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:40px;">
+        <thead><tr>
+          <th style="text-align:left; color:var(--muted); font-size:12.5px; padding:0 14px 10px; border-bottom:1px solid var(--line);">Candidat</th>
+          <th style="text-align:left; color:var(--muted); font-size:12.5px; padding:0 14px 10px; border-bottom:1px solid var(--line);">Offre</th>
+          <th style="text-align:left; color:var(--muted); font-size:12.5px; padding:0 14px 10px; border-bottom:1px solid var(--line);">Score</th>
+          <th style="text-align:left; color:var(--muted); font-size:12.5px; padding:0 14px 10px; border-bottom:1px solid var(--line);">Statut</th>
+        </tr></thead>
+        <tbody id="corpsHistorique"></tbody>
+      </table>
+      <div id="erreurMatching" style="color:var(--danger); font-size:13px;"></div>
+    </div>
+
+    <div class="vue-app" id="vue-cicd" style="display:none;">
+      <div class="panel" style="text-align:center; padding:56px 40px; border-style:dashed;">
+        <h3>Pas encore connecté</h3>
+        <p class="hint">Cet onglet affichera les runs GitHub Actions dès que le dépôt sera créé.</p>
+      </div>
+    </div>
+
+    <div class="vue-app" id="vue-gouvernance" style="display:none;">
+      <div class="panel" style="text-align:center; padding:56px 40px; border-style:dashed;">
+        <h3>Pas encore connecté</h3>
+        <p class="hint">Agent Card, versions SemVer, et bouton de rollback — une fois le dépôt Git en place.</p>
+      </div>
+    </div>
+
+    <div class="vue-app" id="vue-superviseur" style="display:none;">
+      <div class="sec-head"><h2 style="font-size:20px;">Traces d'exécution — latence par agent</h2></div>
+      <div id="tracesListe" style="display:flex; flex-direction:column; gap:16px;"></div>
+    </div>
+
+    <div class="vue-app" id="vue-offres" style="display:none;">
+      <div class="sec-head"><h2 style="font-size:20px;">Publier une offre</h2></div>
+      <div class="panel" style="max-width:620px; margin-bottom:40px;">
+        <form id="offreForm">
+          <div class="field"><label>Titre du poste</label><input type="text" id="offreTitre" placeholder="ex: Développeur Web Junior" required></div>
+          <div class="field"><label>Description / exigences</label><textarea id="offreDescription" placeholder="Missions, compétences requises..." required></textarea></div>
+          <button class="btn btn-primary" type="submit" id="offreSubmit" style="width:100%; justify-content:center;">Publier l'offre</button>
+          <p id="offreFeedback" class="hint" style="margin-top:10px;"></p>
+        </form>
+      </div>
+      <div class="sec-head"><h2 style="font-size:20px;">Offres publiées</h2></div>
+      <div id="listeOffresAdmin" style="display:flex; flex-direction:column; gap:14px; margin-bottom:44px;"></div>
+    </div>
+
+  </div>
+</main>
+
+<main id="candidatAppMain" style="display:none;">
+  <div class="wrap" style="padding-top:36px;">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
+      <div class="hint">Connecté en tant que <strong id="candidatEmailLabel" style="color:var(--ink);"></strong></div>
+      <a href="#" id="candidatLogout" class="hint" style="color:var(--accent); text-decoration:none;">Se déconnecter</a>
+    </div>
+
+    <div class="sec-head"><h2 style="font-size:20px;">Déposer une nouvelle candidature</h2></div>
+    <div class="panel" style="max-width:620px; margin-bottom:40px;">
+      <form id="candidatSpaceForm">
+        <div class="field">
+          <label>CV (PDF)</label>
+          <input type="file" id="candidatSpaceCvInput" accept=".pdf" style="display:none;">
+          <div class="dropzone" id="candidatSpaceDropzone"><strong id="candidatSpaceDzLabel">Glissez votre CV</strong> ou cliquez pour en choisir un</div>
+        </div>
+        <div class="field">
+          <label>Offre d'emploi</label>
+          <select id="candidatSpaceOffreSelect" required style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font-size:14px;">
+            <option value="" disabled selected>Sélectionnez une offre...</option>
+          </select>
+          <p id="candidatSpaceOffreDesc" class="hint" style="margin-top:8px;"></p>
+        </div>
+        <button class="btn btn-primary" type="submit" id="candidatSpaceSubmit" style="width:100%; justify-content:center;">Envoyer ma candidature</button>
+        <p id="candidatSpaceFeedback" class="hint" style="margin-top:12px;"></p>
+      </form>
+    </div>
+
+    <div class="sec-head"><h2 style="font-size:20px;">Mes candidatures</h2></div>
+    <div id="mesCandidatures" style="display:flex; flex-direction:column; gap:14px; margin-bottom:44px;"></div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap ft-row">
+    <span>MatchOps — chaque candidature, la bonne attention.</span>
+  </div>
+</footer>
+
+<script>
+const API_BASE = window.location.protocol + '//' + window.location.hostname + ':8000';
+
+(function(){
+  var root = document.documentElement;
+  var btn = document.getElementById('themeToggle');
+  var KEY = 'matchops-theme';
+  function apply(t){ if(t === 'light'){ root.setAttribute('data-theme','light'); } else { root.removeAttribute('data-theme'); } }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch(e){}
+  if(saved){ apply(saved); }
+  btn.addEventListener('click', function(){
+    var isLight = root.getAttribute('data-theme') === 'light';
+    var next = isLight ? 'dark' : 'light';
+    apply(next);
+    try { localStorage.setItem(KEY, next); } catch(e){}
+  });
+})();
+
+var landingShell = document.getElementById('landingShell');
+var gateShell = document.getElementById('gateShell');
+var appMain = document.getElementById('appMain');
+var loginBox = document.getElementById('loginBox');
+var signupBox = document.getElementById('signupBox');
+var profileDot = document.getElementById('profileDot');
+var profileDropdown = document.getElementById('profileDropdown');
+var recEmailLabel = document.getElementById('recEmailLabel');
+var connecte = false;
+
+var candidatGateShell = document.getElementById('candidatGateShell');
+var candidatAppMain = document.getElementById('candidatAppMain');
+var candidatLoginBox = document.getElementById('candidatLoginBox');
+var candidatSignupBox = document.getElementById('candidatSignupBox');
+var candidatEmailLabel = document.getElementById('candidatEmailLabel');
+var candidatConnecte = false;
+
+function afficherLiensPublics(visible) {
+  document.querySelectorAll('.nav-public-link').forEach(function(a){ a.style.display = visible ? '' : 'none'; });
+}
+
+function afficherApp(email) {
+  landingShell.style.display = 'none';
+  gateShell.style.display = 'none';
+  appMain.style.display = 'block';
+  profileDot.style.display = 'block';
+  recEmailLabel.textContent = email;
+  connecte = true;
+  candidatGateShell.style.display = 'none';
+  candidatAppMain.style.display = 'none';
+  afficherLiensPublics(false);
+  rafraichirMatching();
+}
+function afficherLanding() {
+  landingShell.style.display = 'block';
+  gateShell.style.display = 'none';
+  appMain.style.display = 'none';
+  profileDot.style.display = 'none';
+  connecte = false;
+  candidatGateShell.style.display = 'none';
+  candidatAppMain.style.display = 'none';
+  candidatConnecte = false;
+  afficherLiensPublics(true);
+}
+function ouvrirGate() {
+  landingShell.style.display = 'none';
+  gateShell.style.display = 'flex';
+  afficherLiensPublics(false);
+}
+
+function afficherCandidatApp(email) {
+  landingShell.style.display = 'none';
+  candidatGateShell.style.display = 'none';
+  candidatAppMain.style.display = 'block';
+  candidatEmailLabel.textContent = email;
+  candidatConnecte = true;
+  gateShell.style.display = 'none';
+  appMain.style.display = 'none';
+  profileDot.style.display = 'none';
+  connecte = false;
+  afficherLiensPublics(false);
+  chargerOffresCandidat();
+  chargerMesCandidatures();
+}
+function ouvrirCandidatGate() {
+  landingShell.style.display = 'none';
+  candidatGateShell.style.display = 'flex';
+  afficherLiensPublics(false);
+}
+
+document.getElementById('goRecruteurSpace').addEventListener('click', ouvrirGate);
+document.getElementById('backToLanding').addEventListener('click', function(){
+  gateShell.style.display = 'none';
+  landingShell.style.display = 'block';
+  afficherLiensPublics(true);
+});
+
+document.getElementById('goCandidatSpace').addEventListener('click', ouvrirCandidatGate);
+document.getElementById('goCandidatSpace2').addEventListener('click', ouvrirCandidatGate);
+document.getElementById('backToLandingCandidat').addEventListener('click', function(){
+  candidatGateShell.style.display = 'none';
+  landingShell.style.display = 'block';
+  afficherLiensPublics(true);
+});
+document.getElementById('showCandidatSignup').addEventListener('click', function(e){ e.preventDefault(); candidatLoginBox.style.display='none'; candidatSignupBox.style.display='block'; });
+document.getElementById('showCandidatLogin').addEventListener('click', function(e){ e.preventDefault(); candidatSignupBox.style.display='none'; candidatLoginBox.style.display='block'; });
+
+document.getElementById('candidatLoginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var fd = new FormData();
+  fd.append('email', document.getElementById('candidatLoginEmail').value);
+  fd.append('mot_de_passe', document.getElementById('candidatLoginPassword').value);
+  var fb = document.getElementById('candidatLoginFeedback');
+  fb.textContent = 'Connexion...';
+  fetch(API_BASE + '/auth/candidat/login', { method: 'POST', credentials: 'include', body: fd })
+    .then(function(r){ return r.json().then(function(b){ if(!r.ok) throw new Error(b.detail || 'Erreur'); return b; }); })
+    .then(function(b){ fb.textContent = ''; afficherCandidatApp(b.email); })
+    .catch(function(err){ fb.textContent = 'Erreur : ' + err.message; });
+});
+
+document.getElementById('candidatSignupForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var email = document.getElementById('candidatSignupEmail').value;
+  var pass = document.getElementById('candidatSignupPassword').value;
+  var fb = document.getElementById('candidatSignupFeedback');
+  fb.textContent = 'Création...';
+  var fd = new FormData();
+  fd.append('email', email); fd.append('mot_de_passe', pass);
+  fetch(API_BASE + '/auth/candidat/signup', { method: 'POST', credentials: 'include', body: fd })
+    .then(function(r){ return r.json().then(function(b){ if(!r.ok) throw new Error(b.detail || 'Erreur'); return b; }); })
+    .then(function(){
+      var fd2 = new FormData(); fd2.append('email', email); fd2.append('mot_de_passe', pass);
+      return fetch(API_BASE + '/auth/candidat/login', { method: 'POST', credentials: 'include', body: fd2 });
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(b){ fb.textContent = ''; afficherCandidatApp(b.email); })
+    .catch(function(err){ fb.textContent = 'Erreur : ' + err.message; });
+});
+
+document.getElementById('candidatLogout').addEventListener('click', function(e){
+  e.preventDefault();
+  fetch(API_BASE + '/auth/candidat/logout', { method: 'POST', credentials: 'include' }).then(afficherLanding);
+});
+
+function carteCandidature(d) {
+  var libelles = { approuve_auto: 'Approuvée', rejete_auto: 'Non retenue', attente_humain: 'En attente de revue par un recruteur', approuve_humain: 'Approuvée', rejete_humain: 'Non retenue' };
+  var couleurs = { approuve_auto: 'var(--safe)', approuve_humain: 'var(--safe)', rejete_auto: 'var(--danger)', rejete_humain: 'var(--danger)', attente_humain: 'var(--accent)' };
+  var couleur = couleurs[d.statut] || 'var(--accent)';
+  var rm = d.resultat_matching || {};
+  var tags = (rm.competences_communes || []).map(function(c){
+    return '<span style="display:inline-block;background:transparent;border:1px solid var(--line);color:var(--muted);font-size:12px;padding:3px 10px;border-radius:12px;margin:3px 6px 0 0;">'+c+'</span>';
+  }).join('');
+  var message = d.message_final
+    ? '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);"><p class="hint" style="margin-bottom:6px;">Message :</p><p style="font-size:14px;line-height:1.5;">'+d.message_final.replace(/\n/g,'<br>')+'</p></div>'
+    : '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);"><p class="hint">Votre dossier est en cours d’analyse, le message vous sera communiqué dès la décision.</p></div>';
+  return '<div style="background:var(--surface);border-left:4px solid '+couleur+';border-radius:10px;padding:20px 24px;">' +
+    '<div style="display:grid;grid-template-columns:70px 1fr;align-items:center;gap:20px;">' +
+    '<div style="text-align:center;"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:26px;color:'+couleur+';">' + d.score + '</div></div>' +
+    '<div><div style="font-weight:600;font-size:16px;color:'+couleur+';">' + (libelles[d.statut] || d.statut) + '</div>' +
+    '<div class="hint" style="margin-top:4px;">' + (d.offre_titre || d.offre_id) + '</div></div>' +
+    '</div>' +
+    (tags ? '<div style="margin-top:12px;">'+tags+'</div>' : '') +
+    message +
+    '</div>';
+}
+
+var offresDisponibles = {};
+
+function chargerOffresCandidat() {
+  var select = document.getElementById('candidatSpaceOffreSelect');
+  return fetch(API_BASE + '/offres', { credentials: 'include' })
+    .then(function(r){ return r.json(); })
+    .then(function(offres){
+      offresDisponibles = {};
+      select.innerHTML = '<option value="" disabled selected>Sélectionnez une offre...</option>';
+      offres.forEach(function(o){
+        offresDisponibles[o._id] = o;
+        var opt = document.createElement('option');
+        opt.value = o._id;
+        opt.textContent = o.titre;
+        select.appendChild(opt);
+      });
+      if (!offres.length) {
+        select.innerHTML = '<option value="" disabled selected>Aucune offre disponible pour le moment</option>';
+      }
+    });
+}
+
+document.getElementById('candidatSpaceOffreSelect').addEventListener('change', function(){
+  var offre = offresDisponibles[this.value];
+  document.getElementById('candidatSpaceOffreDesc').textContent = offre ? offre.description : '';
+});
+
+function chargerMesCandidatures() {
+  return fetch(API_BASE + '/candidat/mes-candidatures', { credentials: 'include' })
+    .then(function(r){ return r.json(); })
+    .then(function(decisions){
+      document.getElementById('mesCandidatures').innerHTML = decisions.length
+        ? decisions.map(carteCandidature).join('')
+        : '<div class="hint" style="padding:20px;background:var(--surface);border-radius:10px;text-align:center;">Aucune candidature pour le moment.</div>';
+    });
+}
+
+var candidatSpaceDropzone = document.getElementById('candidatSpaceDropzone');
+var candidatSpaceCvInput = document.getElementById('candidatSpaceCvInput');
+var candidatSpaceDzLabel = document.getElementById('candidatSpaceDzLabel');
+var candidatSpaceForm = document.getElementById('candidatSpaceForm');
+
+candidatSpaceDropzone.addEventListener('click', function(){ candidatSpaceCvInput.click(); });
+candidatSpaceCvInput.addEventListener('change', function(){
+  candidatSpaceDzLabel.textContent = (candidatSpaceCvInput.files && candidatSpaceCvInput.files[0]) ? candidatSpaceCvInput.files[0].name : 'Glissez votre CV';
+});
+
+candidatSpaceForm.addEventListener('submit', function(e){
+  e.preventDefault();
+  var candidatSpaceFeedback = document.getElementById('candidatSpaceFeedback');
+  var candidatSpaceSubmit = document.getElementById('candidatSpaceSubmit');
+  if (!candidatSpaceCvInput.files || !candidatSpaceCvInput.files[0]) {
+    candidatSpaceFeedback.textContent = 'Veuillez joindre votre CV (PDF).';
+    return;
+  }
+  var fd = new FormData();
+  fd.append('cv', candidatSpaceCvInput.files[0]);
+  fd.append('offre_id', document.getElementById('candidatSpaceOffreSelect').value);
+
+  candidatSpaceSubmit.disabled = true;
+  candidatSpaceFeedback.textContent = 'Analyse en cours par nos agents IA...';
+
+  fetch(API_BASE + '/match', { method: 'POST', credentials: 'include', body: fd })
+    .then(function(r){ return r.json().then(function(b){ if(!r.ok) throw new Error(b.detail || 'Erreur'); return b; }); })
+    .then(function(b){
+      candidatSpaceFeedback.textContent = 'Candidature envoyée !';
+      candidatSpaceForm.reset();
+      candidatSpaceDzLabel.textContent = 'Glissez votre CV';
+      document.getElementById('candidatSpaceOffreDesc').textContent = '';
+      chargerMesCandidatures();
+    })
+    .catch(function(err){ candidatSpaceFeedback.textContent = 'Erreur : ' + err.message; })
+    .finally(function(){ candidatSpaceSubmit.disabled = false; });
+});
+
+document.getElementById('profileBtn').addEventListener('click', function(e){
+  e.stopPropagation();
+  if (connecte) {
+    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+  } else {
+    ouvrirGate();
+  }
+});
+document.addEventListener('click', function(e){
+  if (profileDropdown.style.display === 'block' && !profileDropdown.contains(e.target) && e.target !== document.getElementById('profileBtn')) {
+    profileDropdown.style.display = 'none';
+  }
+});
+
+document.getElementById('showSignup').addEventListener('click', function(e){ e.preventDefault(); loginBox.style.display='none'; signupBox.style.display='block'; });
+document.getElementById('showLogin').addEventListener('click', function(e){ e.preventDefault(); signupBox.style.display='none'; loginBox.style.display='block'; });
+
+function verifierSession() {
+  fetch(API_BASE + '/auth/recruteur/me', { credentials: 'include' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(body){
+      if (body && body.email) { afficherApp(body.email); return; }
+      return fetch(API_BASE + '/auth/candidat/me', { credentials: 'include' })
+        .then(function(r2){ return r2.ok ? r2.json() : null; })
+        .then(function(body2){ if (body2 && body2.email) { afficherCandidatApp(body2.email); } else { afficherLanding(); } });
+    })
+    .catch(function(){ afficherLanding(); });
+}
+
+document.getElementById('loginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var fd = new FormData();
+  fd.append('email', document.getElementById('loginEmail').value);
+  fd.append('mot_de_passe', document.getElementById('loginPassword').value);
+  var fb = document.getElementById('loginFeedback');
+  fb.textContent = 'Connexion...';
+  fetch(API_BASE + '/auth/recruteur/login', { method: 'POST', credentials: 'include', body: fd })
+    .then(function(r){ return r.json().then(function(b){ if(!r.ok) throw new Error(b.detail || 'Erreur'); return b; }); })
+    .then(function(b){ fb.textContent = ''; afficherApp(b.email); })
+    .catch(function(err){ fb.textContent = 'Erreur : ' + err.message; });
+});
+
+document.getElementById('signupForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var email = document.getElementById('signupEmail').value;
+  var pass = document.getElementById('signupPassword').value;
+  var fb = document.getElementById('signupFeedback');
+  fb.textContent = 'Création...';
+  var fd = new FormData();
+  fd.append('email', email); fd.append('mot_de_passe', pass);
+  fetch(API_BASE + '/auth/recruteur/signup', { method: 'POST', credentials: 'include', body: fd })
+    .then(function(r){ return r.json().then(function(b){ if(!r.ok) throw new Error(b.detail || 'Erreur'); return b; }); })
+    .then(function(){
+      var fd2 = new FormData(); fd2.append('email', email); fd2.append('mot_de_passe', pass);
+      return fetch(API_BASE + '/auth/recruteur/login', { method: 'POST', credentials: 'include', body: fd2 });
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(b){ fb.textContent = ''; afficherApp(b.email); })
+    .catch(function(err){ fb.textContent = 'Erreur : ' + err.message; });
+});
+
+document.getElementById('recLogout').addEventListener('click', function(e){
+  e.preventDefault();
+  fetch(API_BASE + '/auth/recruteur/logout', { method: 'POST', credentials: 'include' }).then(afficherLanding);
+});
+
+document.querySelectorAll('.onglet-app').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.onglet-app').forEach(function(b){ b.style.color = 'var(--muted)'; b.style.borderBottomColor = 'transparent'; });
+    document.querySelectorAll('.vue-app').forEach(function(v){ v.style.display = 'none'; });
+    btn.style.color = 'var(--ink)'; btn.style.borderBottomColor = 'var(--accent)';
+    document.getElementById('vue-' + btn.dataset.vue).style.display = 'block';
+    if (btn.dataset.vue === 'superviseur') { chargerTraces(); }
+    if (btn.dataset.vue === 'offres') { chargerOffresAdmin(); }
+  });
+});
+
+function carteOffreAdmin(o) {
+  return '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;background:var(--surface);border-radius:10px;padding:18px 24px;">' +
+    '<div><div style="font-weight:600;font-size:15.5px;margin-bottom:6px;">' + o.titre + '</div>' +
+    '<div class="hint">' + o.description.replace(/\n/g,'<br>') + '</div></div>' +
+    '<button type="button" class="btn-supprimer-offre" data-id="' + o._id + '" style="background:none;border:1px solid var(--danger);color:var(--danger);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;white-space:nowrap;">Supprimer</button>' +
+    '</div>';
+}
+
+function chargerOffresAdmin() {
+  return fetch(API_BASE + '/offres', { credentials: 'include' })
+    .then(function(r){ return r.json(); })
+    .then(function(offres){
+      var zone = document.getElementById('listeOffresAdmin');
+      zone.innerHTML = offres.length
+        ? offres.map(carteOffreAdmin).join('')
+        : '<div class="hint" style="padding:20px;background:var(--surface);border-radius:10px;text-align:center;">Aucune offre publiée pour le moment.</div>';
+      zone.querySelectorAll('.btn-supprimer-offre').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          fetch(API_BASE + '/offres/' + btn.dataset.id, { method: 'DELETE', credentials: 'include' })
+            .then(function(){ chargerOffresAdmin(); });
+        });
+      });
+    });
+}
+
+document.getElementById('offreForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var fb = document.getElementById('offreFeedback');
+  var submitBtn = document.getElementById('offreSubmit');
+  var fd = new FormData();
+  fd.append('titre', document.getElementById('offreTitre').value);
+  fd.append('description', document.getElementById('offreDescription').value);
+  submitBtn.disabled = true;
+  fb.textContent = 'Publication...';
+  fetch(API_BASE + '/offres', { method: 'POST', credentials: 'include', body: fd })
+    .then(function(r){ return r.json().then(function(b){ if(!r.ok) throw new Error(b.detail || 'Erreur'); return b; }); })
+    .then(function(){
+      fb.textContent = 'Offre publiée !';
+      document.getElementById('offreForm').reset();
+      chargerOffresAdmin();
+    })
+    .catch(function(err){ fb.textContent = 'Erreur : ' + err.message; })
+    .finally(function(){ submitBtn.disabled = false; });
+});
+
+function carteTrace(run) {
+  var etapes = (run.trace || []).map(function(e){
+    var couleur = e.statut === 'ok' ? 'var(--safe)' : 'var(--danger)';
+    return '<div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">' +
+      '<div style="width:10px;height:10px;border-radius:50%;background:' + couleur + ';"></div>' +
+      '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:12px;text-align:center;">' + e.agent + '</div>' +
+      '<div style="font-size:11.5px;color:var(--muted);">' + e.duree_ms + ' ms</div>' +
+      '</div>';
+  }).join('<div style="flex:0 0 24px;border-top:2px dashed var(--line);align-self:center;margin-top:5px;"></div>');
+
+  var dureeTotal = (run.trace || []).reduce(function(s, e){ return s + (e.duree_ms || 0); }, 0);
+
+  return '<div style="background:var(--surface);border-radius:10px;padding:20px 24px;">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">' +
+    '<div><span style="font-weight:600;">' + run.candidat_id + '</span><span style="color:var(--muted);margin:0 8px;">&rarr;</span><span>' + run.offre_id + '</span></div>' +
+    '<div style="display:flex;gap:16px;align-items:center;"><span style="font-family:\'IBM Plex Mono\',monospace;color:var(--accent);">score ' + run.score + '</span>' +
+    '<span style="font-size:11.5px;color:var(--muted);">' + dureeTotal.toFixed(0) + ' ms total</span></div></div>' +
+    (run.trace ? '<div style="display:flex;align-items:flex-start;">' + etapes + '</div>' : '<div class="hint">Pas de trace enregistree pour ce run.</div>') +
+    '</div>';
+}
+
+function chargerTraces() {
+  return fetch(API_BASE + '/supervision/traces', { credentials: 'include' }).then(verifierReponseAuth).then(function(runs){
+    document.getElementById('tracesListe').innerHTML = runs.length
+      ? runs.map(carteTrace).join('')
+      : '<div class="hint" style="padding:20px;background:var(--surface);border-radius:10px;text-align:center;">Aucun run enregistre.</div>';
+  });
+}
+
+/* ---- Matching data (espace recruteur) ---- */
+function carteDecision(d) {
+  var m = d.resultat_matching || {};
+  var communes = (m.competences_communes || []).map(function(c){ return '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:11.5px;padding:3px 9px;border-radius:5px;background:#16342680;color:var(--safe);margin-right:4px;">'+c+'</span>'; }).join('');
+  var manquantes = (m.competences_manquantes || []).map(function(c){ return '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:11.5px;padding:3px 9px;border-radius:5px;background:#3A181A;color:var(--danger);margin-right:4px;">'+c+'</span>'; }).join('');
+  return '<div style="display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:24px;background:var(--surface);border-left:4px solid var(--accent);border-radius:10px;padding:18px 24px;">' +
+    '<div style="text-align:center;"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:26px;">'+d.score+'</div>' +
+    '<div style="width:70px;height:5px;border-radius:3px;background:var(--line);margin:6px auto 0;position:relative;overflow:hidden;"><span style="position:absolute;left:0;top:0;height:100%;width:'+d.score+'%;background:linear-gradient(90deg,var(--danger),var(--accent),var(--safe));"></span></div></div>' +
+    '<div><a href="candidat.html?id='+d._id+'" style="font-weight:600;font-size:16px;color:var(--ink);text-decoration:none;">'+(d.candidat_nom || d.candidat_id)+'</a><span style="color:var(--muted);margin:0 8px;">→</span><span>'+(d.offre_titre || d.offre_id)+'</span>' +
+    '<div style="margin-top:8px;">'+communes+manquantes+'</div></div>' +
+    '<div style="display:flex;gap:10px;"><button onclick="agir(\''+d._id+'\',\'valider\')" style="background:var(--safe);color:#0B2A1E;border:none;border-radius:7px;padding:9px 16px;font-size:13.5px;font-weight:500;cursor:pointer;">Approuver</button>' +
+    '<button onclick="agir(\''+d._id+'\',\'rejeter\')" style="background:transparent;color:var(--danger);border:1px solid var(--danger);border-radius:7px;padding:9px 16px;font-size:13.5px;font-weight:500;cursor:pointer;">Rejeter</button></div></div>';
+}
+
+function verifierReponseAuth(r) {
+  if (r.status === 401) {
+    afficherLanding();
+    document.getElementById('erreurMatching') && (document.getElementById('erreurMatching').innerText = '');
+    throw new Error('Session expirée, reconnectez-vous.');
+  }
+  return r.json();
+}
+
+function chargerKpi() {
+  return fetch(API_BASE + '/metrics', { credentials: 'include' }).then(verifierReponseAuth).then(function(d){
+    document.getElementById('kpi').innerHTML =
+      '<div class="kpi-card" style="border-color:var(--accent-dim);"><div class="kpi-val" style="color:var(--accent);">'+d.attente_humain+'</div><div class="kpi-label">En attente de revue</div></div>' +
+      '<div class="kpi-card"><div class="kpi-val">'+d.approuve_auto+'</div><div class="kpi-label">Approuvés auto</div></div>' +
+      '<div class="kpi-card"><div class="kpi-val">'+d.rejete_auto+'</div><div class="kpi-label">Rejetés auto</div></div>';
+  });
+}
+
+function chargerDecisions() {
+  return fetch(API_BASE + '/decisions', { credentials: 'include' }).then(verifierReponseAuth).then(function(decisions){
+    var enAttente = decisions.filter(function(d){ return d.statut === 'attente_humain'; });
+    var traitees = decisions.filter(function(d){ return d.statut !== 'attente_humain'; });
+    document.getElementById('fileAttente').innerHTML = enAttente.length
+      ? enAttente.map(carteDecision).join('')
+      : '<div class="hint" style="padding:20px;background:var(--surface);border-radius:10px;text-align:center;">Aucune décision en attente.</div>';
+    document.getElementById('corpsHistorique').innerHTML = traitees.map(function(d){
+      return '<tr><td style="padding:12px 14px;border-bottom:1px solid var(--line);font-family:\'IBM Plex Mono\',monospace;color:var(--muted);font-size:13px;">'+(d.candidat_nom || d.candidat_id)+'</td>' +
+        '<td style="padding:12px 14px;border-bottom:1px solid var(--line);font-family:\'IBM Plex Mono\',monospace;color:var(--muted);font-size:13px;">'+(d.offre_titre || d.offre_id)+'</td>' +
+        '<td style="padding:12px 14px;border-bottom:1px solid var(--line);">'+d.score+'</td>' +
+        '<td style="padding:12px 14px;border-bottom:1px solid var(--line);"><span style="font-size:11.5px;padding:3px 10px;border-radius:12px;font-weight:500;">'+d.statut+'</span></td></tr>';
+    }).join('');
+  });
+}
+
+function agir(id, action) {
+  fetch(API_BASE + '/decisions/' + id + '/' + action, { method: 'POST', credentials: 'include' })
+    .then(function(r){ if(!r.ok) throw new Error('Erreur serveur'); return rafraichirMatching(); })
+    .catch(function(e){ document.getElementById('erreurMatching').innerText = 'Erreur : ' + e.message; });
+}
+
+function rafraichirMatching() {
+  if (!connecte) return;
+  Promise.all([chargerKpi(), chargerDecisions()])
+    .then(function(){ document.getElementById('erreurMatching').innerText = ''; })
+    .catch(function(e){ document.getElementById('erreurMatching').innerText = 'Impossible de contacter l\'API (' + e.message + ')'; });
+}
+setInterval(rafraichirMatching, 5000);
+
+verifierSession();
+</script>
+
+</body>
+</html>
