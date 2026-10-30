@@ -733,8 +733,8 @@ function rendreMarkdownSimple(md) {
       return;
     } else if (dansTable) { html += '</table>'; dansTable = false; }
 
-    if (l.startsWith('## ')) { html += '<h3 style="margin-top:24px;">' + l.slice(3) + '</h3>'; }
-    else if (l.startsWith('# ')) { html += '<h2>' + l.slice(2) + '</h2>'; }
+    if (l.startsWith('## ')) { html += '<h3 style="margin-top:24px;">' + l.slice(3) + '</h3>'; return; }
+    else if (l.startsWith('# ')) { html += '<h2>' + l.slice(2) + '</h2>'; return; }
     else if (l.startsWith('- ')) {
       if (!dansListe) { html += '<ul style="margin:8px 0;padding-left:20px;">'; dansListe = true; }
       html += '<li style="margin:4px 0;">' + formaterInline(l.slice(2)) + '</li>';
@@ -753,7 +753,12 @@ function formaterInline(texte) {
   return texte
     .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
     .replace(/`(.+?)`/g, '<code style="background:var(--surface);padding:1px 5px;border-radius:4px;font-size:12.5px;">$1</code>')
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" style="color:var(--accent);">$1</a>');
+    .replace(/\[(.+?)\]\((.+?)\)/g, function(m, texteLien, url){
+      // Les liens relatifs du markdown (./RUNBOOK.md) sont resolus vers le
+      // depot GitHub (dossier docs/) plutot que vers le serveur local.
+      var cible = /^https?:\/\//.test(url) ? url : 'https://github.com/' + GITHUB_REPO + '/blob/main/docs/' + url.replace(/^\.\//, '');
+      return '<a href="' + cible + '" target="_blank" style="color:var(--accent);">' + texteLien + '</a>';
+    });
 }
 
 function chargerGouvernance() {
