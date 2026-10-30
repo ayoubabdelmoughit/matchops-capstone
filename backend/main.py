@@ -10,7 +10,7 @@ from bson import ObjectId
 
 from backend.agents.superviseur import pipeline_matching
 from backend.agents.redacteur import rediger_message
-from backend.db import decisions_col, offres_col, log_audit, log_dlq
+from backend.db import decisions_col, offres_col, dlq_col, log_audit, log_dlq
 from backend.auth import (
     creer_compte, connecter, deconnecter, utilisateur_courant,
     creer_compte_candidat, connecter_candidat, deconnecter_candidat, utilisateur_candidat_courant,
@@ -277,6 +277,16 @@ def mes_candidatures(candidat_email: str = Depends(candidat_connecte)):
     for d in decisions:
         d["_id"] = str(d["_id"])
     return decisions
+
+
+@app.get("/supervision/erreurs")
+def lister_erreurs(recruteur: str = Depends(recruteur_connecte)):
+    """Jour 21/22 : expose la Dead Letter Queue (erreurs d'agent + erreurs
+    pipeline) pour un affichage temps reel dans l'onglet Superviseur."""
+    erreurs = list(dlq_col.find().sort("_id", -1).limit(50))
+    for e in erreurs:
+        e["_id"] = str(e["_id"])
+    return erreurs
 
 
 @app.get("/metrics")

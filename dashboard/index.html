@@ -196,7 +196,9 @@
 
     <div class="vue-app" id="vue-superviseur" style="display:none;">
       <div class="sec-head"><h2 style="font-size:20px;">Traces d'exécution — latence par agent</h2></div>
-      <div id="tracesListe" style="display:flex; flex-direction:column; gap:16px;"></div>
+      <div id="tracesListe" style="display:flex; flex-direction:column; gap:16px; margin-bottom:40px;"></div>
+      <div class="sec-head"><h2 style="font-size:20px;">Erreurs récentes (Dead Letter Queue)</h2></div>
+      <div id="erreursListe" style="display:flex; flex-direction:column; gap:12px;"></div>
     </div>
 
     <div class="vue-app" id="vue-offres" style="display:none;">
@@ -568,7 +570,7 @@ document.querySelectorAll('.onglet-app').forEach(function(btn){
     document.querySelectorAll('.vue-app').forEach(function(v){ v.style.display = 'none'; });
     btn.style.color = 'var(--ink)'; btn.style.borderBottomColor = 'var(--accent)';
     document.getElementById('vue-' + btn.dataset.vue).style.display = 'block';
-    if (btn.dataset.vue === 'superviseur') { chargerTraces(); }
+    if (btn.dataset.vue === 'superviseur') { chargerTraces(); chargerErreurs(); }
     if (btn.dataset.vue === 'offres') { chargerOffresAdmin(); }
   });
 });
@@ -645,6 +647,32 @@ function chargerTraces() {
     document.getElementById('tracesListe').innerHTML = runs.length
       ? runs.map(carteTrace).join('')
       : '<div class="hint" style="padding:20px;background:var(--surface);border-radius:10px;text-align:center;">Aucun run enregistre.</div>';
+  });
+}
+
+function carteErreur(e) {
+  var payload = e.payload || {};
+  var agent = payload.agent ? (' · agent <b>' + payload.agent + '</b>') : '';
+  var duree = payload.duree_ms ? (' · ' + payload.duree_ms + ' ms') : '';
+  var messageErreur = payload.erreur || '';
+  var horodatage = e.timestamp ? new Date(e.timestamp).toLocaleString('fr-FR') : '';
+  return '<div style="background:var(--surface);border-left:4px solid var(--danger);border-radius:10px;padding:16px 20px;">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">' +
+    '<div>' +
+    '<div style="font-weight:600;color:var(--danger);">' + (e.reason || 'erreur') + '</div>' +
+    (payload.correlation_id ? '<div class="hint" style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;margin-top:4px;">correlation_id: ' + payload.correlation_id + '</div>' : '') +
+    '<div class="hint" style="margin-top:4px;">' + agent + duree + '</div>' +
+    (messageErreur ? '<div style="font-size:13px;margin-top:8px;color:var(--text);">' + String(messageErreur).slice(0, 300) + '</div>' : '') +
+    '</div>' +
+    '<div class="hint" style="font-size:11.5px;white-space:nowrap;">' + horodatage + '</div>' +
+    '</div></div>';
+}
+
+function chargerErreurs() {
+  return fetch(API_BASE + '/supervision/erreurs', { credentials: 'include' }).then(verifierReponseAuth).then(function(erreurs){
+    document.getElementById('erreursListe').innerHTML = erreurs.length
+      ? erreurs.map(carteErreur).join('')
+      : '<div class="hint" style="padding:20px;background:var(--surface);border-radius:10px;text-align:center;">Aucune erreur enregistree — pipeline stable.</div>';
   });
 }
 

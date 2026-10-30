@@ -8,6 +8,7 @@ from backend.agents.analyseur_offre import analyser_offre
 from backend.agents.matcher import calculer_matching
 from backend.agents.decideur import decider
 from backend.agents.redacteur import rediger_message
+from backend.db import log_dlq
 
 import json
 
@@ -33,7 +34,7 @@ class MatchingState(TypedDict):
     trace: Optional[list]
 
 
-def _ajouter_trace(state: MatchingState, nom_agent: str, debut: float, statut: str):
+def _ajouter_trace(state: MatchingState, nom_agent: str, debut: float, statut: str, erreur: Optional[str] = None):
     duree_ms = round((time.time() - debut) * 1000, 1)
     correlation_id = state.get("correlation_id")
     if state.get("trace") is None:
@@ -48,6 +49,19 @@ def _ajouter_trace(state: MatchingState, nom_agent: str, debut: float, statut: s
         "[correlation_id=%s] agent=%s statut=%s duree_ms=%s",
         correlation_id, nom_agent, statut, duree_ms,
     )
+    # Visibilite temps reel dans le dashboard (tab Superviseur -> Erreurs) :
+    # toute erreur d'agent est journalisee immediatement dans la DLQ, meme
+    # si le pipeline echoue avant de pouvoir persister une decision complete.
+    if statut == "erreur":
+        try:
+            log_dlq("erreur_agent", {
+                "correlation_id": correlation_id,
+                "agent": nom_agent,
+                "duree_ms": duree_ms,
+                "erreur": erreur,
+            })
+        except Exception:
+            pass  # l'observabilite ne doit jamais faire planter le pipeline
 
 
 def noeud_extracteur(state: MatchingState) -> MatchingState:
@@ -57,8 +71,8 @@ def noeud_extracteur(state: MatchingState) -> MatchingState:
         candidat = json.loads(resultat["donnees_structurees"])
         state["candidat"] = candidat
         _ajouter_trace(state, "extracteur_cv", debut, "ok")
-    except Exception:
-        _ajouter_trace(state, "extracteur_cv", debut, "erreur")
+    except Exception as e:
+        _ajouter_trace(state, "extracteur_cv", debut, "erreur", erreur=str(e))
         raise
     return state
 
@@ -69,8 +83,8 @@ def noeud_analyseur(state: MatchingState) -> MatchingState:
         resultat = analyser_offre(state["texte_offre"])
         state["offre"] = json.loads(resultat)
         _ajouter_trace(state, "analyseur_offre", debut, "ok")
-    except Exception:
-        _ajouter_trace(state, "analyseur_offre", debut, "erreur")
+    except Exception as e:
+        _ajouter_trace(state, "analyseur_offre", debut, "erreur", erreur=str(e))
         raise
     return state
 
@@ -81,8 +95,8 @@ def noeud_matcher(state: MatchingState) -> MatchingState:
         resultat = calculer_matching(state["candidat"], state["offre"])
         state["resultat_matching"] = json.loads(resultat)
         _ajouter_trace(state, "matcher", debut, "ok")
-    except Exception:
-        _ajouter_trace(state, "matcher", debut, "erreur")
+    except Exception as e:
+        _ajouter_trace(state, "matcher", debut, "erreur", erreur=str(e))
         raise
     return state
 
@@ -97,8 +111,8 @@ def noeud_decideur(state: MatchingState) -> MatchingState:
         )
         state["decision"] = decision
         _ajouter_trace(state, "decideur", debut, "ok")
-    except Exception:
-        _ajouter_trace(state, "decideur", debut, "erreur")
+    except Exception as e:
+        _ajouter_trace(state, "decideur", debut, "erreur", erreur=str(e))
         raise
     return state
 
@@ -108,8 +122,8 @@ def noeud_redacteur(state: MatchingState) -> MatchingState:
     try:
         state["message_final"] = rediger_message(state["decision"])
         _ajouter_trace(state, "redacteur", debut, "ok")
-    except Exception:
-        _ajouter_trace(state, "redacteur", debut, "erreur")
+    except Exception as e:
+        _ajouter_trace(state, "redacteur", debut, "erreur", erreur=str(e))
         raise
     return state
 
