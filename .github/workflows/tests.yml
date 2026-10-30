@@ -22,3 +22,12 @@ jobs:
 
       - name: Run tests
         run: pytest tests/ -v
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: pytest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t matchops-capstone:ci .
