@@ -181,17 +181,13 @@
     </div>
 
     <div class="vue-app" id="vue-cicd" style="display:none;">
-      <div class="panel" style="text-align:center; padding:56px 40px; border-style:dashed;">
-        <h3>Pas encore connecté</h3>
-        <p class="hint">Cet onglet affichera les runs GitHub Actions dès que le dépôt sera créé.</p>
-      </div>
+      <div class="sec-head"><h2 style="font-size:20px;">Pipeline CI/CD — GitHub Actions</h2></div>
+      <div id="cicdListe" style="display:flex; flex-direction:column; gap:12px;"></div>
     </div>
 
     <div class="vue-app" id="vue-gouvernance" style="display:none;">
-      <div class="panel" style="text-align:center; padding:56px 40px; border-style:dashed;">
-        <h3>Pas encore connecté</h3>
-        <p class="hint">Agent Card, versions SemVer, et bouton de rollback — une fois le dépôt Git en place.</p>
-      </div>
+      <div class="sec-head"><h2 style="font-size:20px;">Gouvernance — Agent Card</h2></div>
+      <div id="agentCardContenu" class="panel" style="padding:28px 32px;"></div>
     </div>
 
     <div class="vue-app" id="vue-superviseur" style="display:none;">
@@ -571,6 +567,8 @@ document.querySelectorAll('.onglet-app').forEach(function(btn){
     btn.style.color = 'var(--ink)'; btn.style.borderBottomColor = 'var(--accent)';
     document.getElementById('vue-' + btn.dataset.vue).style.display = 'block';
     if (btn.dataset.vue === 'superviseur') { chargerTraces(); chargerErreurs(); }
+    if (btn.dataset.vue === 'cicd') { chargerCICD(); }
+    if (btn.dataset.vue === 'gouvernance') { chargerGouvernance(); }
     if (btn.dataset.vue === 'offres') { chargerOffresAdmin(); }
   });
 });
@@ -674,6 +672,99 @@ function chargerErreurs() {
       ? erreurs.map(carteErreur).join('')
       : '<div class="hint" style="padding:20px;background:var(--surface);border-radius:10px;text-align:center;">Aucune erreur enregistree — pipeline stable.</div>';
   });
+}
+
+/* ---- Jour 22/23 : Pipeline CI/CD (GitHub Actions) + Gouvernance (Agent Card) ---- */
+var GITHUB_REPO = 'ayoubabdelmoughit/matchops-capstone';
+
+function carteRunCICD(run) {
+  var statut = run.status === 'completed' ? run.conclusion : run.status;
+  var couleur = statut === 'success' ? 'var(--safe)' : (statut === 'in_progress' || statut === 'queued' ? 'var(--accent)' : 'var(--danger)');
+  var libelles = { success: 'Reussi', failure: 'Echoue', in_progress: 'En cours', queued: 'En attente', cancelled: 'Annule' };
+  var duree = '';
+  if (run.run_started_at && run.updated_at && run.status === 'completed') {
+    var s = Math.round((new Date(run.updated_at) - new Date(run.run_started_at)) / 1000);
+    duree = s + 's';
+  }
+  var date = run.created_at ? new Date(run.created_at).toLocaleString('fr-FR') : '';
+  return '<a href="' + run.html_url + '" target="_blank" style="text-decoration:none;color:inherit;">' +
+    '<div style="background:var(--surface);border-left:4px solid ' + couleur + ';border-radius:10px;padding:16px 20px;">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+    '<div><span style="font-weight:600;color:' + couleur + ';">' + (libelles[statut] || statut) + '</span>' +
+    '<span style="color:var(--muted);margin:0 8px;">&middot;</span>' +
+    '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:12.5px;">' + (run.head_sha || '').slice(0,7) + '</span></div>' +
+    '<span class="hint" style="font-size:11.5px;">' + duree + '</span></div>' +
+    '<div class="hint" style="margin-top:6px;font-size:13px;">' + (run.display_title || run.name || '') + '</div>' +
+    '<div class="hint" style="margin-top:2px;font-size:11.5px;">' + date + '</div>' +
+    '</div></a>';
+}
+
+function chargerCICD() {
+  var conteneur = document.getElementById('cicdListe');
+  conteneur.innerHTML = '<div class="hint" style="padding:20px;">Chargement depuis GitHub Actions...</div>';
+  return fetch('https://api.github.com/repos/' + GITHUB_REPO + '/actions/runs?per_page=8')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var runs = data.workflow_runs || [];
+      conteneur.innerHTML = runs.length
+        ? runs.map(carteRunCICD).join('')
+        : '<div class="hint" style="padding:20px;background:var(--surface);border-radius:10px;text-align:center;">Aucun run trouve.</div>';
+    })
+    .catch(function(){
+      conteneur.innerHTML = '<div class="hint" style="padding:20px;background:var(--surface);border-radius:10px;text-align:center;">Impossible de contacter l\'API GitHub (limite de requetes ou hors-ligne). <a href="https://github.com/' + GITHUB_REPO + '/actions" target="_blank">Voir sur GitHub</a></div>';
+    });
+}
+
+function rendreMarkdownSimple(md) {
+  var lignes = md.split('\n');
+  var html = '';
+  var dansListe = false;
+  var dansTable = false;
+  var premiereLigneTable = false;
+  lignes.forEach(function(ligne){
+    var l = ligne.trim();
+    if (l.startsWith('|')) {
+      if (!dansTable) { html += '<table style="width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px;">'; dansTable = true; premiereLigneTable = true; }
+      if (/^\|[\s-:|]+\|$/.test(l)) { return; } // separateur de table ---|---
+      var cellules = l.split('|').slice(1, -1).map(function(c){ return formaterInline(c.trim()); });
+      var balise = premiereLigneTable ? 'th' : 'td';
+      html += '<tr>' + cellules.map(function(c){ return '<' + balise + ' style="border:1px solid var(--line);padding:6px 10px;text-align:left;">' + c + '</' + balise + '>'; }).join('') + '</tr>';
+      premiereLigneTable = false;
+      return;
+    } else if (dansTable) { html += '</table>'; dansTable = false; }
+
+    if (l.startsWith('## ')) { html += '<h3 style="margin-top:24px;">' + l.slice(3) + '</h3>'; }
+    else if (l.startsWith('# ')) { html += '<h2>' + l.slice(2) + '</h2>'; }
+    else if (l.startsWith('- ')) {
+      if (!dansListe) { html += '<ul style="margin:8px 0;padding-left:20px;">'; dansListe = true; }
+      html += '<li style="margin:4px 0;">' + formaterInline(l.slice(2)) + '</li>';
+      return;
+    } else if (dansListe) { html += '</ul>'; dansListe = false; }
+
+    if (l === '') { return; }
+    if (l.startsWith('```')) { return; }
+    html += '<p style="margin:8px 0;line-height:1.6;">' + formaterInline(l) + '</p>';
+  });
+  if (dansListe) html += '</ul>';
+  if (dansTable) html += '</table>';
+  return html;
+}
+function formaterInline(texte) {
+  return texte
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/`(.+?)`/g, '<code style="background:var(--surface);padding:1px 5px;border-radius:4px;font-size:12.5px;">$1</code>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" style="color:var(--accent);">$1</a>');
+}
+
+function chargerGouvernance() {
+  var conteneur = document.getElementById('agentCardContenu');
+  conteneur.innerHTML = '<div class="hint">Chargement depuis GitHub (docs/AGENT_CARD.md)...</div>';
+  return fetch('https://raw.githubusercontent.com/' + GITHUB_REPO + '/main/docs/AGENT_CARD.md')
+    .then(function(r){ if (!r.ok) throw new Error('404'); return r.text(); })
+    .then(function(md){ conteneur.innerHTML = rendreMarkdownSimple(md); })
+    .catch(function(){
+      conteneur.innerHTML = '<div class="hint">Impossible de charger l\'Agent Card depuis GitHub. <a href="https://github.com/' + GITHUB_REPO + '/blob/main/docs/AGENT_CARD.md" target="_blank">Voir sur GitHub</a></div>';
+    });
 }
 
 /* ---- Matching data (espace recruteur) ---- */
