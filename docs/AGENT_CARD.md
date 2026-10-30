@@ -97,3 +97,7 @@ façon anonyme.
 ## Que faire en cas d'incident ?
 
 Voir [`RUNBOOK.md`](./RUNBOOK.md).
+
+Un incident réel (panne du fournisseur LLM) a été simulé et résolu avec ce
+Runbook le 2026-10-30 — voir [`INCIDENT_LOG.md`](./INCIDENT_LOG.md) pour le
+détail des 4 étapes appliquées.
