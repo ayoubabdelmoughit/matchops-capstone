@@ -631,10 +631,11 @@ function carteTrace(run) {
   var dureeTotal = (run.trace || []).reduce(function(s, e){ return s + (e.duree_ms || 0); }, 0);
 
   return '<div style="background:var(--surface);border-radius:10px;padding:20px 24px;">' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">' +
-    '<div><span style="font-weight:600;">' + run.candidat_id + '</span><span style="color:var(--muted);margin:0 8px;">&rarr;</span><span>' + run.offre_id + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+    '<div><span style="font-weight:600;">' + (run.candidat_nom || run.candidat_id) + '</span><span style="color:var(--muted);margin:0 8px;">&rarr;</span><span>' + (run.offre_titre || run.offre_id) + '</span></div>' +
     '<div style="display:flex;gap:16px;align-items:center;"><span style="font-family:\'IBM Plex Mono\',monospace;color:var(--accent);">score ' + run.score + '</span>' +
     '<span style="font-size:11.5px;color:var(--muted);">' + dureeTotal.toFixed(0) + ' ms total</span></div></div>' +
+    (run.correlation_id ? '<div class="hint" style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;margin-bottom:14px;">correlation_id: ' + run.correlation_id + '</div>' : '') +
     (run.trace ? '<div style="display:flex;align-items:flex-start;">' + etapes + '</div>' : '<div class="hint">Pas de trace enregistree pour ce run.</div>') +
     '</div>';
 }

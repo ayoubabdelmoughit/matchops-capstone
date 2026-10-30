@@ -1,5 +1,6 @@
 import os
 import shutil
+import uuid
 from typing import Optional
 from datetime import datetime, timezone
 
@@ -152,6 +153,7 @@ def supprimer_offre(offre_id: str, recruteur: str = Depends(recruteur_connecte))
 
 @app.post("/match")
 async def lancer_matching(
+    response: Response,
     cv: UploadFile = File(...),
     offre_id: str = Form(...),
     candidat_email: str = Depends(candidat_connecte),
@@ -167,17 +169,24 @@ async def lancer_matching(
     horodatage = int(datetime.now(timezone.utc).timestamp())
     candidat_id = f"candidat_{horodatage}"
 
+    # Jour 21 : un correlation_id unique est genere pour cette execution et
+    # propage a travers tous les agents (voir backend/agents/superviseur.py),
+    # pour pouvoir suivre une requete de bout en bout dans les logs/traces.
+    correlation_id = str(uuid.uuid4())
+    response.headers["X-Correlation-Id"] = correlation_id
+
     state_initial = {
         "chemin_cv": chemin_cv,
         "texte_offre": offre_doc["description"],
         "candidat_id": candidat_id,
         "offre_id": offre_id,
+        "correlation_id": correlation_id,
     }
 
     try:
         resultat = pipeline_matching.invoke(state_initial)
     except Exception as e:
-        log_dlq("erreur_pipeline", {"erreur": str(e), "candidat_id": candidat_id})
+        log_dlq("erreur_pipeline", {"erreur": str(e), "candidat_id": candidat_id, "correlation_id": correlation_id})
         raise HTTPException(status_code=500, detail=f"Erreur pipeline: {e}")
 
     decision = resultat.get("decision")
@@ -189,6 +198,7 @@ async def lancer_matching(
             "candidat_email": candidat_email,
             "offre_titre": offre_doc["titre"],
             "message_final": resultat.get("message_final"),
+            "correlation_id": correlation_id,
         }
         decision["candidat_email"] = candidat_email
         decisions_col.update_one({"_id": decision["_id"]}, {"$set": maj})
@@ -199,6 +209,7 @@ async def lancer_matching(
         "offre": resultat.get("offre"),
         "decision": decision,
         "message_final": resultat.get("message_final"),
+        "correlation_id": correlation_id,
     }
 
 
@@ -283,7 +294,7 @@ def lister_traces(recruteur: str = Depends(recruteur_connecte)):
     decisions = list(
         decisions_col.find(
             {},
-            {"candidat_id": 1, "offre_id": 1, "score": 1, "statut": 1, "trace": 1},
+            {"candidat_id": 1, "candidat_nom": 1, "offre_id": 1, "offre_titre": 1, "score": 1, "statut": 1, "trace": 1, "correlation_id": 1},
         )
         .sort("_id", -1)
         .limit(50)

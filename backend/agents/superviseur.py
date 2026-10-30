@@ -1,4 +1,5 @@
 import time
+import logging
 from typing import TypedDict, Optional
 from langgraph.graph import StateGraph, END
 
@@ -10,12 +11,20 @@ from backend.agents.redacteur import rediger_message
 
 import json
 
+# Jour 21 : agent de monitoring -- chaque execution d'agent est journalisee
+# avec un correlation_id commun, pour pouvoir suivre une requete de bout en
+# bout a travers tous les agents (extracteur -> ... -> redacteur) dans les
+# logs du serveur.
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger_monitoring = logging.getLogger("agent_monitoring")
+
 
 class MatchingState(TypedDict):
     chemin_cv: str
     texte_offre: str
     candidat_id: str
     offre_id: str
+    correlation_id: Optional[str]
     candidat: Optional[dict]
     offre: Optional[dict]
     resultat_matching: Optional[dict]
@@ -26,13 +35,19 @@ class MatchingState(TypedDict):
 
 def _ajouter_trace(state: MatchingState, nom_agent: str, debut: float, statut: str):
     duree_ms = round((time.time() - debut) * 1000, 1)
+    correlation_id = state.get("correlation_id")
     if state.get("trace") is None:
         state["trace"] = []
     state["trace"].append({
         "agent": nom_agent,
         "duree_ms": duree_ms,
         "statut": statut,
+        "correlation_id": correlation_id,
     })
+    logger_monitoring.info(
+        "[correlation_id=%s] agent=%s statut=%s duree_ms=%s",
+        correlation_id, nom_agent, statut, duree_ms,
+    )
 
 
 def noeud_extracteur(state: MatchingState) -> MatchingState:
@@ -76,7 +91,10 @@ def noeud_decideur(state: MatchingState) -> MatchingState:
     debut = time.time()
     try:
         nom_candidat = (state.get("candidat") or {}).get("nom")
-        decision = decider(state["candidat_id"], state["offre_id"], state["resultat_matching"], candidat_nom=nom_candidat)
+        decision = decider(
+            state["candidat_id"], state["offre_id"], state["resultat_matching"],
+            candidat_nom=nom_candidat, correlation_id=state.get("correlation_id"),
+        )
         state["decision"] = decision
         _ajouter_trace(state, "decideur", debut, "ok")
     except Exception:
